@@ -74,3 +74,32 @@ src/
 │   └── utils.ts         # Helpers
 └── middleware.ts         # Auth middleware
 ```
+
+## CI/CD Pipeline
+
+```
+PR Opened/Synced
+       │
+       ├──→ CI Job (build + lint + test)
+       │         │
+       │         └──→ Docker Build (main only)
+       │
+       └──→ PR-Agent (AI Code Review)
+                 │
+                 ├── /review  → Security, bugs, quality
+                 ├── /improve → Code suggestions
+                 └── /describe → Auto PR description
+```
+
+### GitHub Actions
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `ci.yml` | Push to main, PR | Build, lint, Docker build |
+| `pr_agent.yml` | PR open/sync, `/review` comment | AI-powered code review |
+
+### Deployment
+
+- **Docker**: `docker compose up -d` on VPS
+- **PM2**: `pm2 start npm --name keyguard -- start`
+- **Port**: 3100 (configurable via `PORT` env)
