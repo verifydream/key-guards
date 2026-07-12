@@ -6,6 +6,7 @@
 # model = "openai/my-combo-hermes"
 temperature = 0.2
 response_language = "id-ID"
+custom_model_max_tokens = 16384
 
 [pr_reviewer]
 require_tests_review = true
