@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  apiKeys   ApiKey[]
+}
+
+model ApiKey {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceName     String
+  environment     String   @default("production")
+  encryptedValue  String
+  iv              String
+  tag             String
+  keyAlias        String?
+  status          String   @default("active")
+  lastRotatedAt   DateTime @default(now())
+  expiryDays      Int      @default(90)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  usageLogs       UsageLog[]
+  rotations       Rotation[]
+
+  @@index([userId])
+}
+
+model UsageLog {
+  id         String   @id @default(cuid())
+  apiKeyId   String
+  apiKey     ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  timestamp  DateTime @default(now())
+  endpoint   String?
+  method     String?
+  statusCode Int?
+  ip         String?
+  userAgent  String?
+  responseTime Int?
+  createdAt  DateTime @default(now())
+
+  @@index([apiKeyId])
+  @@index([timestamp])
+}
+
+model Rotation {
+  id              String   @id @default(cuid())
+  apiKeyId        String
+  apiKey          ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  oldKeyHash      String?
+  newKeyEncrypted String
+  newIv           String
+  newTag          String
+  status          String   @default("pending")
+  gracePeriodEnd  DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([apiKeyId])
+}
