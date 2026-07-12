@@ -4,8 +4,8 @@ import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Eye, EyeOff, RotateCcw, Trash2, Activity } from "lucide-react";
-import { getStatusColor, getStatusLabel, daysSince } from "@/lib/utils";
+import { ArrowLeft, Copy, Check, RotateCcw, Trash2, Activity } from "lucide-react";
+import { getStatusColor, getStatusLabel, daysSince, maskKey } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -43,8 +43,8 @@ export default function KeyDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [key, setKey] = useState<KeyDetail | null>(null);
-  const [revealed, setRevealed] = useState(false);
-  const [keyValue, setKeyValue] = useState("");
+  const [maskedValue, setMaskedValue] = useState("");
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,32 +53,29 @@ export default function KeyDetailPage() {
       if (res.ok) {
         const data = await res.json();
         setKey(data.key);
+        // Fetch masked preview from reveal endpoint, then immediately mask it
+        const revRes = await fetch(`/api/keys/${params.id}/reveal`);
+        const revData = await revRes.json();
+        if (revData.value) {
+          setMaskedValue(maskKey(revData.value));
+        }
       }
       setLoading(false);
     }
     load();
   }, [params.id]);
 
-  async function toggleReveal() {
-    if (revealed) {
-      setRevealed(false);
-      setKeyValue("");
-    } else {
+  async function copyKey() {
+    try {
       const res = await fetch(`/api/keys/${params.id}/reveal`);
       const data = await res.json();
       if (data.value) {
-        setKeyValue(data.value);
-        setRevealed(true);
-        try {
-          await navigator.clipboard.writeText(data.value);
-        } catch {
-          // clipboard API may fail in non-secure contexts
-        }
-        setTimeout(() => {
-          setRevealed(false);
-          setKeyValue("");
-        }, 10000);
+        await navigator.clipboard.writeText(data.value);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
+    } catch {
+      // clipboard may fail in non-secure contexts
     }
   }
 
@@ -118,24 +115,26 @@ export default function KeyDetailPage() {
         </div>
       </div>
 
-      {/* Key Value */}
+      {/* Key Value — always redacted, copy-only */}
       <Card>
         <CardHeader><CardTitle className="text-sm">API Key</CardTitle></CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <code className="flex-1 p-3 bg-muted rounded-lg text-sm font-mono overflow-x-auto break-all">
-              {revealed ? keyValue : "••••••••••••••••••••••••••••••••"}
+            <code className="flex-1 p-3 bg-muted rounded-lg text-sm font-mono overflow-x-auto break-all text-muted-foreground select-all">
+              {maskedValue || "••••••••••••••••••••••••••••••••"}
             </code>
-            <Button variant="outline" size="sm" onClick={toggleReveal} className="gap-2 shrink-0 self-start sm:self-auto">
-              {revealed ? <><EyeOff className="h-4 w-4" /> Hide</> : <><Eye className="h-4 w-4" /> Reveal</>}
+            <Button variant={copied ? "default" : "outline"} size="sm" onClick={copyKey} className="gap-2 shrink-0 self-start sm:self-auto">
+              {copied ? <><Check className="h-4 w-4" /> Copied!</> : <><Copy className="h-4 w-4" /> Copy</>}
             </Button>
           </div>
-          {revealed && <p className="text-xs text-muted-foreground mt-2">Copied to clipboard. Auto-hides in 10s.</p>}
+          <p className="text-xs text-muted-foreground mt-2">
+            Key value is always redacted in the UI. Click Copy to copy the full key to your clipboard.
+          </p>
         </CardContent>
       </Card>
 
       {/* Info */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardContent className="pt-6 text-center">
             <p className="text-2xl font-bold">{days}</p>

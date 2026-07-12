@@ -7,7 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export function maskKey(key: string): string {
   if (key.length <= 8) return "••••••••";
-  return key.slice(0, 4) + "••••" + key.slice(-4);
+  const head = key.slice(0, 5);
+  const tail = key.slice(-4);
+  return `${head}***redacted***${tail}`;
 }
 
 export function getStatusColor(status: string): string {
