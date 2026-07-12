@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Shield, AlertTriangle, Clock, Eye, EyeOff, Trash2, Search } from "lucide-react";
+import { Plus, Shield, AlertTriangle, Clock, Copy, Search, ChevronRight } from "lucide-react";
 import { getStatusColor, getStatusLabel, daysSince } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -88,17 +89,13 @@ export default function DashboardPage() {
     fetchKeys();
   }
 
-  async function toggleReveal(id: string) {
-    if (revealedKeys.has(id)) {
-      setRevealedKeys(prev => { const n = new Set(prev); n.delete(id); return n; });
-    } else {
-      const res = await fetch(`/api/keys/${id}/reveal`);
-      const data = await res.json();
-      if (data.value) {
-        navigator.clipboard.writeText(data.value);
-        setRevealedKeys(prev => new Set(prev).add(id));
-        setTimeout(() => setRevealedKeys(prev => { const n = new Set(prev); n.delete(id); return n; }), 5000);
-      }
+  async function copyKey(id: string) {
+    const res = await fetch(`/api/keys/${id}/reveal`);
+    const data = await res.json();
+    if (data.value) {
+      navigator.clipboard.writeText(data.value);
+      setRevealedKeys(prev => new Set(prev).add(id));
+      setTimeout(() => setRevealedKeys(prev => { const n = new Set(prev); n.delete(id); return n; }), 2000);
     }
   }
 
@@ -252,40 +249,45 @@ export default function DashboardPage() {
             {keys.map(key => {
               const status = key.computedStatus || key.status;
               const days = daysSince(new Date(key.lastRotatedAt));
+              const copied = revealedKeys.has(key.id);
               return (
-                <Card key={key.id} className="hover:border-emerald-500/30 transition-colors">
-                  <CardContent className="py-3 md:py-4">
-                    <div className="flex items-start gap-3">
-                      <div className={cn("h-3 w-3 rounded-full shrink-0 mt-1", 
-                        status === "active" ? "bg-emerald-500" : 
-                        status === "rotate_soon" ? "bg-amber-500" : 
-                        status === "overdue" ? "bg-red-500" : "bg-zinc-500"
-                      )} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="font-medium truncate">{key.serviceName}</span>
-                            <Badge variant="secondary" className="text-xs shrink-0">{key.environment}</Badge>
-                          </div>
-                          <Badge className={cn("shrink-0", getStatusColor(status))}>{getStatusLabel(status)}</Badge>
+                <Link key={key.id} href={`/dashboard/keys/${key.id}`}>
+                  <Card className="hover:border-emerald-500/30 transition-colors cursor-pointer group">
+                    <CardContent className="py-3 px-4">
+                      {/* Top row: name + status */}
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className={cn("h-2.5 w-2.5 rounded-full shrink-0",
+                            status === "active" ? "bg-emerald-500" :
+                            status === "rotate_soon" ? "bg-amber-500" :
+                            status === "overdue" ? "bg-red-500" : "bg-zinc-500"
+                          )} />
+                          <span className="font-medium truncate">{key.serviceName}</span>
+                          <Badge variant="secondary" className="text-[10px] shrink-0">{key.environment}</Badge>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1">
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <Badge className={cn("text-[10px]", getStatusColor(status))}>{getStatusLabel(status)}</Badge>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </div>
+                      </div>
+                      {/* Bottom row: metadata + actions */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                           <span>Rotated {days}d ago</span>
                           <span>Expires in {key.expiryDays - days}d</span>
                           <span>{key.usageCount} calls</span>
                         </div>
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); copyKey(key.id); }}
+                          className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                          title={copied ? "Copied!" : "Copy key"}
+                        >
+                          <Copy className={cn("h-3.5 w-3.5", copied && "text-emerald-500")} />
+                        </button>
                       </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button variant="ghost" size="icon" onClick={() => toggleReveal(key.id)} title="Reveal & copy">
-                          {revealedKeys.has(key.id) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteKey(key.id)} title="Delete">
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
