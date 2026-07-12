@@ -21,7 +21,7 @@ jobs:
         env:
           OPENAI_KEY: ${{ secrets.PR_AGENT_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_BASE: "https://9router.verivibe.dev"
+          OPENAI_API_BASE: "https://9router.verivibe.dev/v1"
           config.model: "openai/my-combo-hermes"
           config.fallback_models: '["openai/my-combo-hermes"]'
           github_action_config.auto_review: "true"
