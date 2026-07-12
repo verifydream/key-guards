@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "keyguard-jwt-dev-secret-change-in-prod");
+const rawSecret = process.env.JWT_SECRET;
+if (!rawSecret || rawSecret === "keyguard-jwt-dev-secret-change-in-prod") {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET must be set to a strong random value in production");
+  }
+}
+const SECRET = new TextEncoder().encode(rawSecret || "keyguard-jwt-dev-secret-change-in-prod");
 const PUBLIC_PATHS = ["/", "/login", "/register", "/api/auth/login", "/api/auth/register"];
 
 export async function middleware(request: NextRequest) {

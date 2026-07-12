@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Download, Trash2, Shield } from "lucide-react";
+import { ArrowLeft, Download, Shield } from "lucide-react";
 import Link from "next/link";
 
 interface User {
@@ -108,8 +108,11 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <Button variant="destructive" onClick={handleLogout} className="gap-2">
-            <Shield className="h-4 w-4" /> Log out of all sessions
+            <Shield className="h-4 w-4" /> Log out
           </Button>
+          <p className="text-xs text-muted-foreground mt-2">
+            Ends your current session. Other sessions on different devices remain active.
+          </p>
         </CardContent>
       </Card>
     </div>

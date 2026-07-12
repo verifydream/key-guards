@@ -35,6 +35,18 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Design Decisions
+
+### Auth Method
+The PRD (Issue #1) specifies passwordless magic-link auth via Supabase Auth. For this MVP
+deployed on a VPS, email+password auth with JWT was chosen instead because:
+- No Supabase dependency needed for self-hosted deployment
+- Simpler initial setup for solo-dev use case
+- Can be upgraded to magic-link/Supabase later without schema changes
+
+When migrating to Supabase, swap the auth routes and update `src/lib/auth.ts` — the rest of
+the app (middleware, key CRUD) stays the same since it only depends on `getCurrentUser()`.
+
 ## Environment Variables
 
 Copy `.env.example` to `.env`:
