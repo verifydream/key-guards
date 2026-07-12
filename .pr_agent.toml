@@ -1,0 +1,30 @@
+# PR-Agent config for key-guards
+# Docs: https://github.com/The-PR-Agent/pr-agent
+
+[config]
+# Model is set via env var in workflow — keep this as fallback
+# model = "openai/my-combo-hermes"
+temperature = 0.2
+response_language = "id-ID"
+
+[pr_reviewer]
+require_tests_review = true
+require_security_review = true
+require_estimate_effort_to_review = true
+num_max_findings = 3
+extra_instructions = """Focus on:
+- Security vulnerabilities (auth, input validation, injection)
+- Error handling gaps
+- Performance issues
+- Code maintainability
+"""
+
+[pr_description]
+generate_ai_title = false
+use_bullet_points = true
+enable_pr_diagram = true
+
+[pr_code_suggestions]
+commitable_code_suggestions = true
+focus_only_on_problems = true
+num_code_suggestions_per_chunk = 3
