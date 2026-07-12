@@ -106,6 +106,26 @@ src/
 | Encryption | AES-256-GCM (Node.js crypto) |
 | Deployment | Docker, PM2, GitHub Actions |
 
+## Contributing
+
+1. Fork & clone the repo
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Install deps: `npm install`
+4. Start dev: `make dev`
+5. Run lint: `npm run lint`
+6. Commit with conventional format: `feat:`, `fix:`, `docs:`, etc.
+7. Push & open a PR
+
+PR-Agent will automatically review your PR for security issues, bugs, and code quality.
+
+### Code Review
+
+This repo uses [PR-Agent](https://github.com/The-PR-Agent/pr-agent) for AI-powered code reviews:
+
+- **Auto-review** runs on every PR open/sync
+- **Manual trigger**: Comment `/review` on any PR
+- **Suggestions**: Comment `/improve` for actionable code suggestions
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
