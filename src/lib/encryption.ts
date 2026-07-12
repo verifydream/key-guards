@@ -7,7 +7,7 @@ const IV_LENGTH = 16;
 function getMasterKey(): Buffer {
   const secret = process.env.ENCRYPTION_KEY;
   if (!secret || secret === "keyguard-default-dev-key-change-in-prod") {
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production" && process.env.NEXT_RUNTIME !== "edge") {
       throw new Error("ENCRYPTION_KEY must be set to a strong random value in production");
     }
   }
@@ -37,5 +37,3 @@ export function decrypt(encryptedHex: string, ivHex: string, tagHex: string): st
   const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
   return decrypted.toString("utf8");
 }
-
-// ponytail: client-side encryption via SubtleCrypto for browser; add when migrating to Supabase

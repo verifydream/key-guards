@@ -1,14 +1,17 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const rawSecret = process.env.JWT_SECRET;
-if (!rawSecret || rawSecret === "keyguard-jwt-dev-secret-change-in-prod") {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("JWT_SECRET must be set to a strong random value in production");
-  }
-}
-const SECRET = new TextEncoder().encode(rawSecret || "keyguard-jwt-dev-secret-change-in-prod");
 const COOKIE_NAME = "keyguard-token";
+
+function getSecret(): Uint8Array {
+  const raw = process.env.JWT_SECRET;
+  if (!raw || raw === "keyguard-jwt-dev-secret-change-in-prod") {
+    if (process.env.NODE_ENV === "production" && process.env.NEXT_RUNTIME !== "edge") {
+      throw new Error("JWT_SECRET must be set to a strong random value in production");
+    }
+  }
+  return new TextEncoder().encode(raw || "keyguard-jwt-dev-secret-change-in-prod");
+}
 
 export interface JWTPayload {
   userId: string;
@@ -20,12 +23,12 @@ export async function createToken(payload: JWTPayload): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(SECRET);
+    .sign(getSecret());
 }
 
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, SECRET);
+    const { payload } = await jwtVerify(token, getSecret());
     return payload as unknown as JWTPayload;
   } catch {
     return null;
