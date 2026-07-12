@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Shield, Key, RotateCcw, Search, Settings, LogOut, LayoutDashboard, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -18,8 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Close sidebar on navigation (mobile)
-  useEffect(() => { setSidebarOpen(false); }, [pathname]);
+  function closeSidebar() { setSidebarOpen(false); }
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -31,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen flex bg-background">
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={closeSidebar} />
       )}
 
       {/* Sidebar */}
@@ -44,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Shield className="h-5 w-5 text-emerald-500 shrink-0" />
             <span className="font-bold">KeyGuard</span>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-muted-foreground hover:text-foreground">
+          <button onClick={closeSidebar} className="md:hidden text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -53,6 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link
               key={href}
               href={href}
+              onClick={closeSidebar}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                 pathname === href || (href !== "/dashboard" && pathname.startsWith(href))
@@ -82,7 +82,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button onClick={() => setSidebarOpen(true)} className="text-muted-foreground hover:text-foreground md:hidden">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
           </button>
-          <div className="md:hidden" /> {/* spacer when no hamburger on desktop */}
+          <div className="md:hidden" />
         </header>
         <div className="p-4 md:p-6">{children}</div>
       </main>

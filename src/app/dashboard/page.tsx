@@ -83,12 +83,6 @@ export default function DashboardPage() {
     }
   }
 
-  async function deleteKey(id: string) {
-    if (!confirm("Delete this key? This cannot be undone.")) return;
-    await fetch(`/api/keys/${id}`, { method: "DELETE" });
-    fetchKeys();
-  }
-
   async function copyKey(id: string) {
     const res = await fetch(`/api/keys/${id}/reveal`);
     const data = await res.json();
