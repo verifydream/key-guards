@@ -30,7 +30,7 @@ export default function LandingPage() {
           <Lock className="h-3.5 w-3.5" />
           Developer-first API key security
         </div>
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6">
           Your API keys,<br />
           <span className="text-emerald-500">secured & monitored</span>
         </h1>
@@ -38,7 +38,7 @@ export default function LandingPage() {
           Stop losing sleep over exposed keys. KeyGuard gives you a visual dashboard to manage, rotate, 
           and monitor every API key — with encryption, anomaly alerts, and one-click rotation.
         </p>
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <Link href="/register">
             <Button size="lg" className="gap-2">
               <Zap className="h-4 w-4" />
@@ -73,7 +73,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border/50 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between text-sm text-muted-foreground">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-muted-foreground">
           <span>KeyGuard © 2026</span>
           <span>Built for developers who care about security</span>
         </div>

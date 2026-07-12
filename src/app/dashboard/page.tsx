@@ -142,7 +142,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -254,32 +254,35 @@ export default function DashboardPage() {
               const days = daysSince(new Date(key.lastRotatedAt));
               return (
                 <Card key={key.id} className="hover:border-emerald-500/30 transition-colors">
-                  <CardContent className="py-4 flex items-center gap-4">
-                    <div className={cn("h-3 w-3 rounded-full shrink-0", 
-                      status === "active" ? "bg-emerald-500" : 
-                      status === "rotate_soon" ? "bg-amber-500" : 
-                      status === "overdue" ? "bg-red-500" : "bg-zinc-500"
-                    )} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{key.serviceName}</span>
-                        <Badge variant="secondary" className="text-xs">{key.environment}</Badge>
-                        {key.keyAlias && <span className="text-xs text-muted-foreground">#{key.keyAlias}</span>}
+                  <CardContent className="py-3 md:py-4">
+                    <div className="flex items-start gap-3">
+                      <div className={cn("h-3 w-3 rounded-full shrink-0 mt-1", 
+                        status === "active" ? "bg-emerald-500" : 
+                        status === "rotate_soon" ? "bg-amber-500" : 
+                        status === "overdue" ? "bg-red-500" : "bg-zinc-500"
+                      )} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-medium truncate">{key.serviceName}</span>
+                            <Badge variant="secondary" className="text-xs shrink-0">{key.environment}</Badge>
+                          </div>
+                          <Badge className={cn("shrink-0", getStatusColor(status))}>{getStatusLabel(status)}</Badge>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1">
+                          <span>Rotated {days}d ago</span>
+                          <span>Expires in {key.expiryDays - days}d</span>
+                          <span>{key.usageCount} calls</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                        <span>Rotated {days}d ago</span>
-                        <span>Expires in {key.expiryDays - days}d</span>
-                        <span>{key.usageCount} calls</span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => toggleReveal(key.id)} title="Reveal & copy">
+                          {revealedKeys.has(key.id) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteKey(key.id)} title="Delete">
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
                       </div>
-                    </div>
-                    <Badge className={cn("shrink-0", getStatusColor(status))}>{getStatusLabel(status)}</Badge>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" onClick={() => toggleReveal(key.id)} title="Reveal & copy">
-                        {revealedKeys.has(key.id) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deleteKey(key.id)} title="Delete">
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -317,7 +320,7 @@ export default function DashboardPage() {
                   <div className="space-y-2">
                     {scanResults.map((r, i) => (
                       <div key={i} className={cn(
-                        "flex items-center gap-3 p-3 rounded-lg text-sm border",
+                        "flex flex-wrap items-center gap-2 p-3 rounded-lg text-sm border",
                         r.severity === "high" ? "border-red-500/30 bg-red-500/5" :
                         r.severity === "medium" ? "border-amber-500/30 bg-amber-500/5" :
                         "border-zinc-500/30 bg-zinc-500/5"

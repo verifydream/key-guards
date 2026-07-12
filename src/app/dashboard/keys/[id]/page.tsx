@@ -101,10 +101,10 @@ export default function KeyDetailPage() {
       </Link>
 
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">{key.serviceName}</h1>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <Badge variant="secondary">{key.environment}</Badge>
             <Badge className={cn(getStatusColor(status))}>{getStatusLabel(status)}</Badge>
             {key.keyAlias && <span className="text-sm text-muted-foreground">#{key.keyAlias}</span>}
@@ -112,9 +112,9 @@ export default function KeyDetailPage() {
         </div>
         <div className="flex gap-2">
           <Link href={`/dashboard/rotate?keyId=${key.id}`}>
-            <Button variant="outline" size="sm" className="gap-2"><RotateCcw className="h-4 w-4" /> Rotate</Button>
+            <Button variant="outline" size="sm" className="gap-2"><RotateCcw className="h-4 w-4" /> <span className="hidden sm:inline">Rotate</span></Button>
           </Link>
-          <Button variant="destructive" size="sm" onClick={handleDelete} className="gap-2"><Trash2 className="h-4 w-4" /> Delete</Button>
+          <Button variant="destructive" size="sm" onClick={handleDelete} className="gap-2"><Trash2 className="h-4 w-4" /> <span className="hidden sm:inline">Delete</span></Button>
         </div>
       </div>
 
@@ -122,11 +122,11 @@ export default function KeyDetailPage() {
       <Card>
         <CardHeader><CardTitle className="text-sm">API Key</CardTitle></CardHeader>
         <CardContent>
-          <div className="flex items-center gap-3">
-            <code className="flex-1 p-3 bg-muted rounded-lg text-sm font-mono overflow-x-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <code className="flex-1 p-3 bg-muted rounded-lg text-sm font-mono overflow-x-auto break-all">
               {revealed ? keyValue : "••••••••••••••••••••••••••••••••"}
             </code>
-            <Button variant="outline" size="sm" onClick={toggleReveal} className="gap-2 shrink-0">
+            <Button variant="outline" size="sm" onClick={toggleReveal} className="gap-2 shrink-0 self-start sm:self-auto">
               {revealed ? <><EyeOff className="h-4 w-4" /> Hide</> : <><Eye className="h-4 w-4" /> Reveal</>}
             </Button>
           </div>
