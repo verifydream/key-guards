@@ -5,8 +5,13 @@ const KEY_LENGTH = 32;
 const IV_LENGTH = 16;
 
 function getMasterKey(): Buffer {
-  const secret = process.env.ENCRYPTION_KEY || "keyguard-default-dev-key-change-in-prod";
-  return scryptSync(secret, "keyguard-salt", KEY_LENGTH);
+  const secret = process.env.ENCRYPTION_KEY;
+  if (!secret || secret === "keyguard-default-dev-key-change-in-prod") {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("ENCRYPTION_KEY must be set to a strong random value in production");
+    }
+  }
+  return scryptSync(secret || "keyguard-default-dev-key-change-in-prod", "keyguard-salt", KEY_LENGTH);
 }
 
 export function encrypt(plaintext: string): { encrypted: string; iv: string; tag: string } {

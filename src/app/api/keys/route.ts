@@ -4,17 +4,29 @@ import { getCurrentUser } from "@/lib/auth";
 import { encrypt } from "@/lib/encryption";
 import { computeStatus } from "@/lib/utils";
 
+// Fields never sent to the client
+const KEY_SELECT = {
+  id: true,
+  serviceName: true,
+  environment: true,
+  keyAlias: true,
+  status: true,
+  lastRotatedAt: true,
+  expiryDays: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const keys = await prisma.apiKey.findMany({
     where: { userId: user.userId },
-    include: { _count: { select: { usageLogs: true } } },
+    select: { ...KEY_SELECT, _count: { select: { usageLogs: true } } },
     orderBy: { createdAt: "desc" },
   });
 
-  // Compute dynamic status
   const enriched = keys.map(k => ({
     ...k,
     computedStatus: computeStatus(k.lastRotatedAt, k.expiryDays),
@@ -47,6 +59,7 @@ export async function POST(request: Request) {
         keyAlias: keyAlias || null,
         expiryDays: expiryDays || 90,
       },
+      select: KEY_SELECT,
     });
 
     return NextResponse.json({ key }, { status: 201 });

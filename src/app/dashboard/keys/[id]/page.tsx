@@ -69,6 +69,15 @@ export default function KeyDetailPage() {
       if (data.value) {
         setKeyValue(data.value);
         setRevealed(true);
+        try {
+          await navigator.clipboard.writeText(data.value);
+        } catch {
+          // clipboard API may fail in non-secure contexts
+        }
+        setTimeout(() => {
+          setRevealed(false);
+          setKeyValue("");
+        }, 10000);
       }
     }
   }

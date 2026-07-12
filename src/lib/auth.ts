@@ -1,7 +1,13 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "keyguard-jwt-dev-secret-change-in-prod");
+const rawSecret = process.env.JWT_SECRET;
+if (!rawSecret || rawSecret === "keyguard-jwt-dev-secret-change-in-prod") {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET must be set to a strong random value in production");
+  }
+}
+const SECRET = new TextEncoder().encode(rawSecret || "keyguard-jwt-dev-secret-change-in-prod");
 const COOKIE_NAME = "keyguard-token";
 
 export interface JWTPayload {

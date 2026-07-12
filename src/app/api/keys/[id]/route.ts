@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { encrypt, decrypt } from "@/lib/encryption";
+import { encrypt } from "@/lib/encryption";
+
+// Fields never sent to the client
+const KEY_SELECT = {
+  id: true,
+  serviceName: true,
+  environment: true,
+  keyAlias: true,
+  status: true,
+  lastRotatedAt: true,
+  expiryDays: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -10,7 +23,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   const key = await prisma.apiKey.findFirst({
     where: { id, userId: user.userId },
-    include: { usageLogs: { orderBy: { timestamp: "desc" }, take: 50 }, rotations: { orderBy: { createdAt: "desc" } },
+    select: {
+      ...KEY_SELECT,
+      usageLogs: { orderBy: { timestamp: "desc" }, take: 50 },
+      rotations: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -42,7 +58,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     updateData.lastRotatedAt = new Date();
   }
 
-  const key = await prisma.apiKey.update({ where: { id }, data: updateData });
+  const key = await prisma.apiKey.update({ where: { id }, data: updateData, select: KEY_SELECT });
   return NextResponse.json({ key });
 }
 

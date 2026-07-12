@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Shield, AlertTriangle, Clock, Eye, EyeOff, Trash2, Search, Upload } from "lucide-react";
+import { Plus, Shield, AlertTriangle, Clock, Eye, EyeOff, Trash2, Search } from "lucide-react";
 import { getStatusColor, getStatusLabel, daysSince } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -113,8 +113,9 @@ export default function DashboardPage() {
       return { name: name.trim(), content: rest.join("\n") };
     });
 
-    if (files.length === 0) {
-      // Single file mode
+    if (files.length === 0 || (files.length === 1 && !text.includes("---FILE:"))) {
+      // Single file mode — treat entire input as one file
+      files.length = 0;
       files.push({ name: "pasted-content", content: text });
     }
 
