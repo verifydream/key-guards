@@ -31,7 +31,7 @@ describe('auth module', () => {
       delete: vi.fn(),
     };
 
-    vi.mocked(cookies).mockResolvedValue(cookieStore as any);
+    vi.mocked(cookies).mockResolvedValue(cookieStore as unknown as ReturnType<typeof cookies>);
   });
 
   afterEach(() => {
