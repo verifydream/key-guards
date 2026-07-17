@@ -7,6 +7,15 @@ import { encrypt } from "@/lib/encryption";
 const MIN_GRACE_HOURS = 1;
 const MAX_GRACE_HOURS = 168; // 7 days
 
+/**
+ * POST handler to initiate a zero-downtime rotation for an API key.
+ * Encrypts the new key, stores the old key hash for validation during the grace period,
+ * and updates the active key data.
+ *
+ * @param {Request} request - The incoming HTTP request containing `newKeyValue` and `gracePeriodHours`.
+ * @param {{ params: Promise<{ id: string }> }} context - The route context containing the key ID.
+ * @returns {Promise<NextResponse>} JSON response containing the rotation record and a masked preview of the new key.
+ */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -16,6 +16,13 @@ const KEY_SELECT = {
   updatedAt: true,
 } as const;
 
+/**
+ * GET handler to retrieve details of a specific API key, including recent usage logs and rotation history.
+ *
+ * @param {Request} _request - The incoming HTTP request.
+ * @param {{ params: Promise<{ id: string }> }} context - The route context containing the key ID.
+ * @returns {Promise<NextResponse>} JSON response containing the key details, or 404 if not found.
+ */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,6 +41,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return NextResponse.json({ key });
 }
 
+/**
+ * PUT handler to update metadata or the underlying value of an existing API key.
+ * If a new `keyValue` is provided, it is encrypted and the rotation timestamp is updated.
+ *
+ * @param {Request} request - The incoming HTTP request containing the JSON payload with update fields.
+ * @param {{ params: Promise<{ id: string }> }} context - The route context containing the key ID.
+ * @returns {Promise<NextResponse>} JSON response containing the updated key metadata.
+ */
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,6 +77,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({ key });
 }
 
+/**
+ * DELETE handler to remove an API key and all associated usage/rotation logs via cascade.
+ *
+ * @param {Request} _request - The incoming HTTP request.
+ * @param {{ params: Promise<{ id: string }> }} context - The route context containing the key ID.
+ * @returns {Promise<NextResponse>} JSON response indicating success.
+ */
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

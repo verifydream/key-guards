@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
+/**
+ * GET handler to fetch usage logs and compute basic analytics (total calls, errors, average response time) for a specific API key.
+ *
+ * @param {Request} _request - The incoming HTTP request.
+ * @param {{ params: Promise<{ id: string }> }} context - The route context containing the key ID.
+ * @returns {Promise<NextResponse>} JSON response containing the usage logs and computed analytics.
+ */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -26,6 +33,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return NextResponse.json({ logs, analytics: { totalCalls, errorCalls, avgResponseTime } });
 }
 
+/**
+ * POST handler to record a new usage log entry for a specific API key.
+ * Used internally by the analytics engine or proxies.
+ *
+ * @param {Request} request - The incoming HTTP request containing the log details (endpoint, method, statusCode, ip, userAgent, responseTime).
+ * @param {{ params: Promise<{ id: string }> }} context - The route context containing the key ID.
+ * @returns {Promise<NextResponse>} JSON response containing the newly created usage log.
+ */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
