@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { POST } from './route';
 
 // Mock the auth logic
@@ -7,7 +7,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 
 describe('Git Exposure Scanner', () => {
-  const createRequest = (body: any) => {
+  const createRequest = (body: unknown) => {
     return new Request('http://localhost/api/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

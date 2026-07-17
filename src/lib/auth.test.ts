@@ -57,7 +57,7 @@ describe('Auth Module', () => {
   describe('verifyToken', () => {
     it('should return payload if valid', async () => {
       const mockPayload = { userId: '123', email: 'test@example.com' };
-      vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: mockPayload } as any);
+      vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: mockPayload } as unknown as jose.JWTVerifyResult);
 
       const payload = await verifyToken('valid-token');
       expect(payload).toEqual(mockPayload);
@@ -121,9 +121,9 @@ describe('Auth Module', () => {
 
     it('should return payload if valid token is found', async () => {
       const cookieStore = await cookies();
-      vi.mocked(cookieStore.get).mockReturnValue({ value: 'valid-token' } as any);
+      vi.mocked(cookieStore.get).mockReturnValue({ value: 'valid-token' } as unknown as ReturnType<typeof cookieStore.get>);
       const mockPayload = { userId: '123', email: 'test@example.com' };
-      vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: mockPayload } as any);
+      vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: mockPayload } as unknown as jose.JWTVerifyResult);
 
       const user = await getCurrentUser();
       expect(user).toEqual(mockPayload);

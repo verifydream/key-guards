@@ -62,7 +62,7 @@ describe('Keys API Route', () => {
   });
 
   describe('POST', () => {
-    const createRequest = (body: any) => new Request('http://localhost/api/keys', {
+    const createRequest = (body: unknown) => new Request('http://localhost/api/keys', {
       method: 'POST',
       body: JSON.stringify(body)
     });

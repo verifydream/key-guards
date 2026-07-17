@@ -54,7 +54,7 @@ describe('Middleware', () => {
   });
 
   it('should allow access if token is valid', async () => {
-    vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: { userId: '123' } } as any);
+    vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: { userId: '123' } } as unknown as jose.JWTVerifyResult);
 
     const req = createRequest('/dashboard', 'valid-token');
     const res = await middleware(req);
@@ -104,7 +104,7 @@ describe('Middleware', () => {
     process.env.NODE_ENV = 'production';
     process.env.NEXT_RUNTIME = 'edge';
     delete process.env.JWT_SECRET;
-    vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: { userId: '123' } } as any);
+    vi.mocked(jose.jwtVerify).mockResolvedValue({ payload: { userId: '123' } } as unknown as jose.JWTVerifyResult);
 
     const req = createRequest('/dashboard', 'valid-token');
     const res = await middleware(req);
