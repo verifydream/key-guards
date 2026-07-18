@@ -80,7 +80,7 @@ describe('middleware', () => {
       url: 'http://localhost/dashboard'
     } as unknown as NextRequest;
 
-    (jwtVerify as any).mockResolvedValue({ payload: {} });
+    vi.mocked(jwtVerify).mockResolvedValue({ payload: {} } as never);
 
     const res = await middleware(req);
     expect(res).toEqual({ type: 'next' });
@@ -93,7 +93,7 @@ describe('middleware', () => {
       url: 'http://localhost/dashboard'
     } as unknown as NextRequest;
 
-    (jwtVerify as any).mockRejectedValue(new Error('invalid'));
+    vi.mocked(jwtVerify).mockRejectedValue(new Error('invalid'));
 
     const res = await middleware(req);
     expect(res).toEqual({ type: 'redirect', url: new URL('/login', 'http://localhost/dashboard') });
@@ -106,7 +106,7 @@ describe('middleware', () => {
       url: 'http://localhost/api/protected'
     } as unknown as NextRequest;
 
-    (jwtVerify as any).mockRejectedValue(new Error('invalid'));
+    vi.mocked(jwtVerify).mockRejectedValue(new Error('invalid'));
 
     const res = await middleware(req);
     expect(res).toEqual({ type: 'json', body: { error: 'Invalid token' }, init: { status: 401 } });

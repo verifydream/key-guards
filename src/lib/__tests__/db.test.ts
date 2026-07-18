@@ -20,26 +20,26 @@ describe('db', () => {
   afterEach(() => {
     process.env = originalEnv;
     // reset globalForPrisma.prisma
-    delete (globalThis as any).prisma;
+    delete (globalThis as unknown as Record<string, unknown>).prisma;
   });
 
   it('creates a new PrismaClient in production', async () => {
     process.env.NODE_ENV = 'production';
     const { prisma } = await import('../db');
     expect(prisma).toBeDefined();
-    expect((globalThis as any).prisma).toBeUndefined();
+    expect((globalThis as unknown as Record<string, unknown>).prisma).toBeUndefined();
   });
 
   it('reuses the PrismaClient instance in development', async () => {
     process.env.NODE_ENV = 'development';
 
     // Import first time
-    const { prisma: prisma1 } = await import('../db');
-    expect((globalThis as any).prisma).toBeDefined();
+    await import('../db');
+    expect((globalThis as unknown as Record<string, unknown>).prisma).toBeDefined();
 
     // Mock that global is set
     const mockGlobalPrisma = { mock: 'instance' };
-    (globalThis as any).prisma = mockGlobalPrisma;
+    (globalThis as unknown as Record<string, unknown>).prisma = mockGlobalPrisma;
 
     // Force re-evaluation of module to test reuse
     vi.resetModules();
