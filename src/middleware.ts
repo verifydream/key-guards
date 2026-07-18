@@ -14,6 +14,15 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(raw || "keyguard-jwt-dev-secret-change-in-prod");
 }
 
+/**
+ * Next.js Middleware to handle route protection and JWT verification.
+ * Permits unauthenticated access to specific public routes and API auth routes.
+ * Redirects unauthenticated users to the login page for protected UI routes,
+ * or returns a 401 Unauthorized JSON response for protected API routes.
+ *
+ * @param {NextRequest} request - The incoming HTTP request.
+ * @returns {Promise<NextResponse>} The Next.js response indicating whether to proceed, redirect, or block.
+ */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 

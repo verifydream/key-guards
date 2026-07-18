@@ -14,6 +14,13 @@ function getMasterKey(): Buffer {
   return scryptSync(secret || "keyguard-default-dev-key-change-in-prod", "keyguard-salt", KEY_LENGTH);
 }
 
+/**
+ * Encrypts a plaintext string using AES-256-GCM.
+ *
+ * @param {string} plaintext - The plaintext string to encrypt.
+ * @returns {{ encrypted: string; iv: string; tag: string }} An object containing the hex-encoded ciphertext, initialization vector (IV), and authentication tag.
+ * @throws {Error} Throws an error if ENCRYPTION_KEY is insecure in production.
+ */
 export function encrypt(plaintext: string): { encrypted: string; iv: string; tag: string } {
   const key = getMasterKey();
   const iv = randomBytes(IV_LENGTH);
@@ -27,6 +34,15 @@ export function encrypt(plaintext: string): { encrypted: string; iv: string; tag
   };
 }
 
+/**
+ * Decrypts a hex-encoded ciphertext back into its plaintext string.
+ *
+ * @param {string} encryptedHex - The hex-encoded encrypted string.
+ * @param {string} ivHex - The hex-encoded initialization vector (IV) used during encryption.
+ * @param {string} tagHex - The hex-encoded authentication tag used for verification.
+ * @returns {string} The decrypted plaintext string.
+ * @throws {Error} Throws an error if decryption or authentication fails, or if ENCRYPTION_KEY is insecure in production.
+ */
 export function decrypt(encryptedHex: string, ivHex: string, tagHex: string): string {
   const key = getMasterKey();
   const iv = Buffer.from(ivHex, "hex");

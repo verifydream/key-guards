@@ -27,6 +27,13 @@ interface ScanResult {
   severity: "high" | "medium" | "low";
 }
 
+/**
+ * POST handler to scan provided file contents for accidentally exposed hardcoded secrets.
+ * Matches file contents against a set of known API key regular expressions.
+ *
+ * @param {Request} request - The incoming HTTP request containing a JSON array of `files` (each with `name` and `content`).
+ * @returns {Promise<NextResponse>} JSON response containing the array of masked findings (file, line, match, severity) and a summary.
+ */
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -75,6 +82,13 @@ export async function POST(request: Request) {
   }
 }
 
+/**
+ * Determines the severity of a matched secret based on its pattern name and string length.
+ *
+ * @param {string} name - The name of the matched pattern.
+ * @param {string} match - The actual matched string content.
+ * @returns {"high" | "medium" | "low"} The determined severity level.
+ */
 function getSeverity(name: string, match: string): "high" | "medium" | "low" {
   if (["Private Key Block", "AWS Secret Key", "Connection String"].includes(name)) return "high";
   if (match.length > 30) return "high";
@@ -82,6 +96,12 @@ function getSeverity(name: string, match: string): "high" | "medium" | "low" {
   return "low";
 }
 
+/**
+ * Masks a matched secret string to prevent displaying the full secret in scan results.
+ *
+ * @param {string} match - The plaintext matched secret.
+ * @returns {string} The safely masked string.
+ */
 function maskMatch(match: string): string {
   if (match.length <= 8) return "••••••••";
   return match.slice(0, 4) + "•••" + match.slice(-4);

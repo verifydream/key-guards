@@ -17,6 +17,12 @@ const KEY_SELECT = {
   updatedAt: true,
 } as const;
 
+/**
+ * GET handler to list all API keys belonging to the currently authenticated user.
+ * Keys are enriched with computed status and usage counts. Sensitive fields (encrypted value, IV, tag) are stripped.
+ *
+ * @returns {Promise<NextResponse>} JSON response containing an array of enriched API keys.
+ */
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,6 +42,13 @@ export async function GET() {
   return NextResponse.json({ keys: enriched });
 }
 
+/**
+ * POST handler to securely store a new API key.
+ * Encrypts the provided key value before saving it to the database.
+ *
+ * @param {Request} request - The incoming HTTP request containing the JSON payload with `serviceName`, `keyValue`, `environment`, `keyAlias`, and `expiryDays`.
+ * @returns {Promise<NextResponse>} JSON response containing the created key metadata (excluding the plaintext/encrypted value).
+ */
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

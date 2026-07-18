@@ -3,6 +3,14 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { createToken, setAuthCookie } from "@/lib/auth";
 
+/**
+ * POST handler to register a new user.
+ *
+ * @param {Request} request - The incoming HTTP request containing the JSON payload with `email`, `password`, and optional `name`.
+ * @returns {Promise<NextResponse>} JSON response containing the created user object upon successful registration.
+ * Returns 400 for missing fields, 409 if the email is already registered, and 500 on server errors.
+ * Also sets an HttpOnly secure cookie with the authentication token for automatic login.
+ */
 export async function POST(request: Request) {
   try {
     const { email, password, name } = await request.json();
